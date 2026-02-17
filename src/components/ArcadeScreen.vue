@@ -1,95 +1,131 @@
+// src/components/ArcadeScreen.vue
 <template>
-  <div class="arcade-screen" ref="screenElementRef">
-    <div class="scanlines"></div> <!-- Optional scanline effect -->
-    <div class="screen-glare"></div> <!-- Optional glare effect -->
-    <div class="screen-content-wrapper">
-      <slot></slot> <!-- GameMenu or demo loop will go here -->
-    </div>
+  <div class="arcade-screen-ui" :class="{ 'game-active': gameHasStarted }">
+    <template v-if="!gameHasStarted">
+      <!-- <img src="/assets/logo.svg" alt="Pac-Man Logo" class="logo" /> <!-- Assuming logo.svg is your Pac-Man logo -->
+      -->
+      <div class="title">PAC-MAN</div>
+      <button @click="triggerStartGame" class="start-button">START GAME</button>
+      <div class="credits">INSERT COIN</div>
+    </template>
+    <template v-else>
+      <!-- This part would be shown if the game itself renders here -->
+      <div class="game-placeholder-text">
+        LOADING GAME...
+        <!-- Your Rust/WASM game canvas/container would go here -->
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-const screenElementRef = ref(null);
+const emit = defineEmits(['startGame']);
 
-// Method to allow parent to get the screen element for calculations
-const getScreenElement = () => {
-  return screenElementRef.value;
-};
+const gameHasStarted = ref(false); // Local state for screen content
 
-defineExpose({ getScreenElement });
+function triggerStartGame() {
+  // gameHasStarted.value = true; // Uncomment if game plays on this screen
+  emit('startGame'); // Notify parent (PacmanCabinet)
+}
 </script>
 
-<style lang="scss" scoped>
-.arcade-screen {
-  width: 100%;
-  // For a 4:3 aspect ratio, if width is 100%, padding-bottom is 75%
-  padding-bottom: 75%; // This creates a 4:3 aspect ratio box
-  position: relative;
-  background-color: #080818; // Dark blue/black for CRT feel
-  border-radius: 10px; // CRT curvature
-  overflow: hidden; // Crucial for effects and content
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7); // Inner shadow for depth
+<style scoped>
+/* Add the "Press Start 2P" font to your project (e.g., in public/index.html or main.css) */
+/* @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap'); */
 
-  // Slight bulge effect for CRT (optional, can be complex)
-  // transform: perspective(500px) rotateX(1deg) rotateY(-1deg) scale(1.02);
-}
-
-.screen-content-wrapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+.arcade-screen-ui {
+  /*
+    IMPORTANT: The width/height here should be chosen carefully.
+    The `htmlScale` in PacmanCabinet.vue will scale this down.
+    Aim for a size that gives good text clarity when scaled.
+    E.g., if screenWidth in 3D is 0.6 and htmlScale is 0.002,
+    then 0.6 / 0.002 = 300px. So width here could be around 300px.
+  */
+  width: 270px;
+  /* (0.6 / 0.0022) approx */
+  height: 202px;
+  /* (0.45 / 0.0022) approx */
+  background-color: #00000A;
+  color: #FFFF00;
+  font-family: 'Press Start 2P', cursive;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  padding: 5%; // Inner padding for screen content
+  justify-content: space-around;
+  /* Adjusted for better spacing */
+  padding: 15px;
+  /* Adjusted padding */
+  box-sizing: border-box;
+  border: 4px solid #1a1a55;
+  border-radius: 3px;
+  text-align: center;
+  overflow: hidden;
+  /* Crucial for TresJS Html component */
+  image-rendering: pixelated;
+  /* Helps with pixel art style */
 }
 
-// Optional Scanlines Effect
-.scanlines {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  z-index: 1;
-  background: linear-gradient(to bottom,
-      rgba(20, 20, 40, 0) 50%,
-      rgba(0, 0, 0, 0.25) 51% // Darker line
-    );
-  background-size: 100% 4px; // Adjust line thickness and spacing
-  animation: scanline-anim 10s linear infinite;
+.logo {
+  width: 60px;
+  /* Adjusted size */
+  margin-top: 5px;
 }
 
-@keyframes scanline-anim {
-  0% {
-    background-position: 0 0;
-  }
+.title {
+  font-size: 22px;
+  /* Adjusted size */
+  color: #FFFF00;
+  text-shadow: 2px 2px #FF0000, -1px -1px #39f;
+  line-height: 1.1;
+}
 
+.start-button {
+  background-color: #FF0000;
+  color: #FFFF00;
+  border: 2px solid #FFFF00;
+  padding: 8px 12px;
+  /* Adjusted padding */
+  font-family: 'Press Start 2P', cursive;
+  font-size: 12px;
+  /* Adjusted size */
+  cursor: pointer;
+  box-shadow: 1px 1px #000;
+  text-transform: uppercase;
+}
+
+.start-button:hover {
+  background-color: #FFFF00;
+  color: #FF0000;
+  border-color: #FF0000;
+}
+
+.credits {
+  font-size: 10px;
+  /* Adjusted size */
+  color: #00FFFF;
+  /* Cyan */
+  animation: blink-animation 1.2s infinite;
+  margin-bottom: 5px;
+}
+
+@keyframes blink-animation {
+
+  0%,
   100% {
-    background-position: 0 -20px;
+    opacity: 1;
   }
 
-  // Slower or faster scroll
+  50% {
+    opacity: 0.4;
+  }
 }
 
-// Optional Glare Effect
-.screen-glare {
-  position: absolute;
-  top: 5%;
-  left: 5%;
-  width: 50%;
-  height: 70%;
-  pointer-events: none;
-  z-index: 2;
-  background: radial-gradient(circle at 30% 30%,
-      rgba(220, 220, 255, 0.15) 0%, // Lighter glare center
-      rgba(220, 220, 255, 0.0) 50% // Fades out
-    );
-  transform: skewX(-15deg) rotate(-5deg);
-  opacity: 0.7;
+.game-placeholder-text {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 </style>

@@ -2,6 +2,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LandingView from '../views/LandingView.vue'
 import GameView from '../views/GameView.vue'
+import ArcadeMachineView from '../views/ArcadeMachineView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,6 +16,13 @@ const router = createRouter({
       path: '/play',
       name: 'play',
       component: GameView
+      // You might want to add a route guard here later
+      // to ensure the Wasm game is loaded or user is "logged in"
+    },
+    {
+      path: '/arcade-machine',
+      name: 'ArcadeMachine',
+      component: ArcadeMachineView
       // You might want to add a route guard here later
       // to ensure the Wasm game is loaded or user is "logged in"
     }

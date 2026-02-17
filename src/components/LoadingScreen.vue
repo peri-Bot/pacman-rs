@@ -32,7 +32,7 @@
         </svg>
       </div>
       <div class="px-30 p-3">
-        <svg class="text-yellow-500 fill-current h-20 w-20" xmlns="http://www.w3.org/2000/svg" xml:space="preserve"
+        <svg class="text-yellow-400 fill-current h-20 w-20" xmlns="http://www.w3.org/2000/svg" xml:space="preserve"
           id="Icons" version="1.1" viewBox="0 0 32 32">
           <path
             d="m19.4 16 7.4-7.4c.4-.4.4-.9.1-1.3C24.2 3.9 20.3 2 16 2 8.3 2 2 8.3 2 16s6.3 14 14 14c4.3 0 8.2-1.9 10.9-5.2.3-.4.3-1-.1-1.3L19.4 16zM14 14c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3z" />
@@ -40,15 +40,47 @@
       </div>
     </div>
     <div class=" flex items-center justify-center">
+      <!-- Bar track -->
       <div class="w-full max-w-md mx-auto mt-6 bg-gray-800 rounded-full h-4 overflow-hidden shadow-lg">
-        <div class="bg-yellow-400 h-full w-2/3 animate-pulse transition-all duration-500"></div>
+        <!-- Bar fill -->
+        <div class="bg-yellow-400 h-full transition-all duration-300 ease-in-out"
+          :style="{ width: `${loadingProgress}%` }"></div>
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue' // Import onUnmounted
+import { useRouter } from 'vue-router' // Import useRouter
+
+const loadingProgress = ref(0)
+const router = useRouter() // Get router instance
+let intervalId = null; // To store the interval ID
+
+onMounted(() => {
+  intervalId = setInterval(() => {
+    loadingProgress.value += 1
+    if (loadingProgress.value >= 100) {
+      loadingProgress.value = 100; // Ensure it's exactly 100 for display
+      clearInterval(intervalId)
+      intervalId = null; // Reset intervalId after clearing
+
+      // Redirect to ArcadeMachine.vue
+      // Make sure you have a route named 'ArcadeMachine' or change to path: '/path-to-arcade'
+      router.push({ name: 'ArcadeMachine' })
+    }
+  }, 50) // Adjust time for faster/slower loading (50ms * 100 = 5 seconds)
+})
+
+// Clean up the interval if the component is unmounted before loading finishes
+onUnmounted(() => {
+  if (intervalId) {
+    clearInterval(intervalId)
+  }
+})
 </script>
+
 
 <style scoped>
 .pacman-logo-marquee {

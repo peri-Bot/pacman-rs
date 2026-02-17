@@ -1,149 +1,76 @@
+<script setup lang="ts">
+// This function will eventually be loaded from your WASM module.
+// For now, it's just a placeholder.
+function startGame() {
+  alert('Starting game! (This would call a WASM function)');
+  // In a real scenario:
+  // import { start_game } from 'my-wasm-package';
+  // start_game();
+}
+</script>
+
 <template>
-  <div class="game-menu" ref="menuContainer">
-    <div class="menu-title" ref="menuTitleRef">PAC-MAN</div>
-    <ul>
-      <li v-for="(item, index) in menuItems" :key="item.id" :ref="el => { if (el) menuItemRefs[index] = el }"
-        @click="item.action" @mouseenter="selectedIndex = index" :class="{ selected: selectedIndex === index }">
-        <span class="arrow" v-if="selectedIndex === index">></span> {{ item.label }}
-      </li>
-    </ul>
-    <div class="high-score" ref="highScoreRef">HIGH SCORE: {{ highScore }}</div>
+  <!--
+    This component will be rendered off-screen.
+    The size here should match the aspect ratio of the 3D screen plane.
+    Our screen is 1.6 x 1.26, which is roughly a 4:3.15 aspect ratio.
+    Let's use 400px width for decent resolution. 400 * (1.26 / 1.6) = 315.
+  -->
+  <div class="arcade-menu-container">
+    <h1>RUSTY ARCADE</h1>
+    <button @click="startGame">START GAME</button>
+    <p>High Score: 9999</p>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, nextTick } from 'vue';
-import { animate } from 'animejs';
-
-const emit = defineEmits(['startGame']);
-
-const menuContainer = ref(null);
-const menuTitleRef = ref(null);
-const menuItemRefs = ref([]);
-const highScoreRef = ref(null);
-
-const highScore = ref(50000); // Example
-const selectedIndex = ref(0);
-
-const menuItems = ref([
-  { id: 'start', label: 'START GAME', action: () => emit('startGame') },
-  { id: 'options', label: 'OPTIONS', action: () => console.log('Options') },
-  // { id: 'highscores', label: 'HIGH SCORES', action: () => console.log('High Scores') },
-]);
-
-// Keyboard navigation (basic)
-onMounted(() => {
-  window.addEventListener('keydown', handleKeydown);
-});
-const handleKeydown = (e) => {
-  if (!menuContainer.value || !menuContainer.value.offsetParent) return; // Only if menu is visible
-
-  if (e.key === 'ArrowDown') {
-    selectedIndex.value = (selectedIndex.value + 1) % menuItems.value.length;
-  } else if (e.key === 'ArrowUp') {
-    selectedIndex.value = (selectedIndex.value - 1 + menuItems.value.length) % menuItems.value.length;
-  } else if (e.key === 'Enter' || e.key === ' ') {
-    menuItems.value[selectedIndex.value]?.action();
-  }
-};
-
-const animateIn = async () => {
-  if (!menuContainer.value) return;
-
-  // Ensure refs are populated
-  await nextTick();
-
-  const tl = anime.timeline({
-    easing: 'easeOutExpo',
-    duration: 750,
-  });
-
-  tl.add({
-    targets: menuTitleRef.value,
-    opacity: [0, 1],
-    translateY: [-20, 0],
-    delay: 300, // Wait for zoom to mostly finish
-  })
-    .add({
-      targets: menuItemRefs.value,
-      opacity: [0, 1],
-      translateX: [-20, 0],
-      delay: anime.stagger(150, { start: 200 }),
-    }, '-=300') // Overlap slightly with title animation
-    .add({
-      targets: highScoreRef.value,
-      opacity: [0, 1],
-      translateY: [20, 0],
-    }, '-=500'); // Overlap
-
-  await tl.finished;
-};
-
-defineExpose({ animateIn });
-</script>
-
-<style lang="scss" scoped>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
-// Gruvbox Colors
-$gb-yellow: #fabd2f;
-$gb-fg: #ebdbb2;
-$gb-red: #fb4934;
-$gb-bg-screen: #080818; // Screen background
-
-.game-menu {
+<style scoped>
+.arcade-menu-container {
+  width: 400px;
+  height: 315px;
+  background-color: #001144;
+  color: #FFFF99;
   font-family: 'Press Start 2P', cursive;
-  color: $gb-fg;
+  /* Add a retro font for style! */
   text-align: center;
-  text-transform: uppercase;
+  padding: 20px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  height: 100%;
-  // For initial animation state
-  opacity: 1; // Will be set to 0 by animateIn initially if needed
+  gap: 20px;
 }
 
-.menu-title {
-  font-size: 2.5em; // Adjust based on screen size
-  color: $gb-yellow;
-  margin-bottom: 1.5em;
-  text-shadow: 3px 3px 0px $gb-red; // Classic shadow
-  opacity: 0; // For animateIn
+h1 {
+  color: #FF3333;
+  font-size: 2.5rem;
+  text-shadow: 3px 3px 0px #282828;
+  margin: 0;
 }
 
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1.5em 0;
-  width: 80%;
-}
-
-li {
-  font-size: 1.2em; // Adjust
-  margin-bottom: 0.8em;
+button {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 1.5rem;
+  padding: 15px 25px;
+  background-color: #33FF33;
+  color: #282828;
+  border: 3px solid #282828;
   cursor: pointer;
-  opacity: 0; // For animateIn
-  position: relative;
-  padding: 5px 0;
-
-  &:hover,
-  &.selected {
-    color: $gb-yellow;
-  }
-
-  .arrow {
-    position: absolute;
-    left: -25px; // Adjust as needed
-    color: $gb-red;
-  }
+  box-shadow: 5px 5px 0px #252525;
+  transition: all 0.1s ease-in-out;
 }
 
-.high-score {
-  font-size: 1em;
-  color: $gb-fg;
-  opacity: 0; // For animateIn
+button:hover {
+  background-color: #8CFF8C;
+}
+
+button:active {
+  transform: translate(5px, 5px);
+  box-shadow: none;
+}
+
+p {
+  font-size: 1.2rem;
+  color: white;
 }
 </style>

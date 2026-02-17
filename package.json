@@ -1,0 +1,46 @@
+{
+  "name": "pacman",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint:oxlint": "oxlint . --fix -D correctness --ignore-path .gitignore",
+    "lint:eslint": "eslint . --fix",
+    "lint": "run-s lint:*",
+    "format": "prettier --write src/"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.13",
+    "@tresjs/cientos": "^5.0.0",
+    "@tresjs/core": "^5.0.2",
+    "animejs": "^4.2.0",
+    "gsap": "^3.13.0",
+    "html2canvas": "^1.4.1",
+    "tailwindcss": "^4.1.13",
+    "three": "^0.180.0",
+    "troisjs": "^0.3.4",
+    "vue": "^3.5.22",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@tailwindcss/vite": "^4.1.13",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.36.0",
+    "eslint-plugin-oxlint": "^0.16.12",
+    "eslint-plugin-vue": "~10.0.1",
+    "globals": "^16.4.0",
+    "npm-run-all2": "^7.0.2",
+    "oxlint": "^0.16.12",
+    "postcss": "^8.5.6",
+    "prettier": "3.5.3",
+    "sass": "^1.93.2",
+    "vite": "^6.3.6",
+    "vite-plugin-vue-devtools": "^7.7.7"
+  }
+}
