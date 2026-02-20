@@ -6,9 +6,9 @@
 </template>
 
 <script setup>
-// No specific script needed here for basic router-view
+// Suspense is handled at the component level where async setup is used
 </script>
 
 <style>
-/* Global styles or App specific styles */
+/* Global styles handled in main.css */
 </style>
