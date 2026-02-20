@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    name: Nix Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v30
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+
+      # All checks run inside the Nix dev shell, using the exact same
+      # toolchain versions defined in flake.nix.
+      - name: Check Rust formatting
+        run: nix develop --command cargo fmt --check --manifest-path game/Cargo.toml
+
+      - name: Run Clippy
+        run: nix develop --command cargo clippy --manifest-path game/Cargo.toml -- -D warnings
+
+      - name: Run Rust tests
+        run: nix develop --command cargo test --manifest-path game/Cargo.toml
+
+      - name: Build WASM
+        run: nix develop --command wasm-pack build game/ --target web
+
+      - name: Install frontend dependencies
+        run: nix develop --command bun install --frozen-lockfile
+
+      - name: Build frontend
+        run: nix develop --command bun run build
