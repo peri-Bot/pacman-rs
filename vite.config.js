@@ -3,20 +3,21 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import tailwindcss from '@tailwindcss/vite' // <-- Import the plugin
-import { templateCompilerOptions } from '@tresjs/core' // Import this
-
-
+import tailwindcss from '@tailwindcss/vite'
+import wasm from 'vite-plugin-wasm'
+import topLevelAwait from 'vite-plugin-top-level-await'
+import { templateCompilerOptions } from '@tresjs/core'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue({
-      // Spread the TresJS template compiler options
       ...templateCompilerOptions,
     }),
     vueDevTools(),
     tailwindcss(),
+    wasm(),
+    topLevelAwait(),
   ],
   resolve: {
     alias: {
@@ -24,6 +25,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['html2canvas'], // Tell Vite to pre-bundle this dependency on startup
+    include: ['html2canvas'],
+    exclude: ['game'],  // Don't pre-bundle the WASM package
   },
 })
