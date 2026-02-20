@@ -8,7 +8,7 @@ on:
 
 jobs:
   check:
-    name: Nix Build & Test
+    name: Nix Checks & Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,20 +19,11 @@ jobs:
 
       - uses: DeterminateSystems/magic-nix-cache-action@v8
 
-      # All checks run inside the Nix dev shell, using the exact same
-      # toolchain versions defined in flake.nix.
-      - name: Check Rust formatting
-        run: nix develop --command cargo fmt --check --manifest-path game/Cargo.toml
+      # Rust checks: fmt, clippy, tests + WASM build (all pure/sandboxed)
+      - name: Run all Nix checks
+        run: nix flake check --print-build-logs
 
-      - name: Run Clippy
-        run: nix develop --command cargo clippy --manifest-path game/Cargo.toml -- -D warnings
-
-      - name: Run Rust tests
-        run: nix develop --command cargo test --manifest-path game/Cargo.toml
-
-      - name: Build WASM
-        run: nix develop --command wasm-pack build game/ --target web
-
+      # Frontend build (needs network for bun install, so runs via nix develop)
       - name: Install frontend dependencies
         run: nix develop --command bun install --frozen-lockfile
 
