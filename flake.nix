@@ -8,9 +8,10 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    crane.url = "github:ipetkov/crane";
   };
 
-  outputs = { self, nixpkgs, flake-utils, rust-overlay }:
+  outputs = { self, nixpkgs, flake-utils, rust-overlay, crane }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         overlays = [ (import rust-overlay) ];
@@ -18,81 +19,140 @@
           inherit system overlays;
         };
 
-        # Rust toolchain: stable with wasm32 target
+        # ── Rust toolchains ──────────────────────────────────────────
+        # Native toolchain (for checks, tests, dev shell)
         rustToolchain = pkgs.rust-bin.stable.latest.default.override {
           extensions = [ "rust-src" "rust-analyzer" "clippy" "rustfmt" ];
           targets = [ "wasm32-unknown-unknown" ];
         };
+
+        # Crane lib using our toolchain
+        craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
+
+        # ── Source filtering ─────────────────────────────────────────
+        # Only include Rust source files for crane builds (faster caching)
+        gameDir = ./game;
+        gameSrc = pkgs.lib.cleanSourceWith {
+          src = gameDir;
+          filter = path: type:
+            (craneLib.filterCargoSources path type);
+        };
+
+        # Common args for all crane derivations
+        commonArgs = {
+          src = gameSrc;
+          pname = "pacman-game";
+          version = "0.1.0";
+        };
+
+        # Build just the cargo dependencies for caching
+        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+
+        # ── Packages ─────────────────────────────────────────────────
+
+        # Step 1: Build Rust → WASM via crane (handles vendoring automatically)
+        wasmRaw = craneLib.buildPackage (commonArgs // {
+          inherit cargoArtifacts;
+
+          # Cross-compile to WASM
+          CARGO_BUILD_TARGET = "wasm32-unknown-unknown";
+
+          # Don't try to run tests or install bins (it's a cdylib)
+          doCheck = false;
+          doInstallCargoArtifacts = false;
+
+          installPhaseCommand = ''
+            mkdir -p $out
+            cp target/wasm32-unknown-unknown/release/pacman_game.wasm $out/ || true
+            cp target/wasm32-unknown-unknown/release/*.wasm $out/ || true
+          '';
+        });
+
+        # Step 2: Run wasm-bindgen + wasm-opt on the raw .wasm
+        wasmPkg = pkgs.stdenv.mkDerivation {
+          pname = "pacman-game-wasm";
+          version = "0.1.0";
+          src = wasmRaw;
+          nativeBuildInputs = [ pkgs.wasm-bindgen-cli pkgs.binaryen ];
+
+          buildPhase = ''
+            # Generate JS bindings
+            wasm-bindgen \
+              --target web \
+              --out-dir $out \
+              pacman_game.wasm
+
+            # Optimize for size
+            wasm-opt -Os -o $out/pacman_game_bg.wasm $out/pacman_game_bg.wasm
+          '';
+
+          installPhase = "true";
+        };
+
       in
       {
-        # ──────────────────────────────────────────────
-        # Development Shell
-        # ──────────────────────────────────────────────
-        devShells.default = pkgs.mkShell {
-          name = "pacman-rs-dev";
-
-          buildInputs = with pkgs; [
-            # ── Rust ──
-            rustToolchain
+        # ── Development Shell ──────────────────────────────────────
+        devShells.default = craneLib.devShell {
+          # Extra tools beyond what crane provides
+          packages = with pkgs; [
             wasm-pack
             wasm-bindgen-cli
-            binaryen          # wasm-opt
-
-            # ── Node / Frontend ──
+            binaryen
             bun
             nodejs_22
-
-            # ── Common native deps for Rust crates ──
             pkg-config
             openssl
-
-            # ── Utilities ──
-            just              # task runner
+            just
           ];
 
           shellHook = ''
             echo ""
             echo "🕹️  pacman-rs dev shell activated"
             echo "──────────────────────────────────"
-            echo "  rustc   : $(rustc --version)"
-            echo "  cargo   : $(cargo --version)"
+            echo "  rustc    : $(rustc --version)"
+            echo "  cargo    : $(cargo --version)"
             echo "  wasm-pack: $(wasm-pack --version)"
-            echo "  bun     : $(bun --version)"
-            echo "  node    : $(node --version)"
+            echo "  bun      : $(bun --version)"
+            echo "  node     : $(node --version)"
             echo "──────────────────────────────────"
             echo ""
-            echo "Quick start:"
-            echo "  bun install && bun run dev   # Vue frontend"
-            echo "  wasm-pack build game/        # Build Rust→WASM (once game/ crate exists)"
+            echo "Commands:"
+            echo "  bun install && bun run dev     # Dev server"
+            echo "  wasm-pack build game/          # Build WASM"
+            echo "  nix build                      # Production WASM build"
+            echo "  nix flake check                # Run all CI checks"
             echo ""
           '';
         };
 
-        # ──────────────────────────────────────────────
-        # Production Package (Vue frontend build)
-        # ──────────────────────────────────────────────
-        packages.default = pkgs.stdenv.mkDerivation {
-          pname = "pacman-rs";
-          version = "0.1.0";
+        # ── Packages ────────────────────────────────────────────────
+        # `nix build`       → WASM package (pure, sandboxed)
+        # Frontend build runs via `nix develop --command bun run build`
+        # because bun needs network access to install JS dependencies,
+        # which isn't allowed in Nix sandboxed builds.
+        packages = {
+          default = wasmPkg;
+          wasm = wasmPkg;
+        };
 
-          src = pkgs.lib.cleanSource ./.;
+        # ── Checks (run via `nix flake check`) ──────────────────────
+        checks = {
+          # Verify formatting
+          fmt = craneLib.cargoFmt commonArgs;
 
-          nativeBuildInputs = with pkgs; [
-            bun
-            nodejs_22
-          ];
+          # Lint with clippy
+          clippy = craneLib.cargoClippy (commonArgs // {
+            inherit cargoArtifacts;
+            cargoClippyExtraArgs = "-- -D warnings";
+          });
 
-          # bun install needs a writable home
-          buildPhase = ''
-            export HOME=$(mktemp -d)
-            bun install --frozen-lockfile
-            bun run build
-          '';
+          # Run tests
+          tests = craneLib.cargoTest (commonArgs // {
+            inherit cargoArtifacts;
+          });
 
-          installPhase = ''
-            mkdir -p $out
-            cp -r dist/* $out/
-          '';
+          # Verify WASM build works
+          wasm-build = wasmPkg;
         };
       }
     );
