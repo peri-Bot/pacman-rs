@@ -1,99 +1,336 @@
 <template>
-  <div class="text-center content-center justify-center ">
-    <div class="pacman-logo-marquee">PAC-MAN</div>
-    <div class="flex flex-row justify-center py-6">
-      <div class="p-3">
-        <svg class="text-red-500 fill-current h-18 w-20" xmlns="http://www.w3.org/2000/svg" xml:space="preserve"
-          width="800" height="800" viewBox="0 0 333.561 333.561">
-          <path
-            d="M295.023 70.021c-10.653-20.379-25.378-36.617-43.763-48.265C228.47 7.32 200.047 0 166.78 0S105.09 7.32 82.3 21.757C63.914 33.404 49.19 49.643 38.537 70.022 20.792 103.966 20.28 137.91 20.28 141.668v182.064c0 1.4.001 2.673.036 3.596.214 5.784 4.052 6.233 5.223 6.233 2.327 0 3.61-1.173 7.316-4.88l.213-.214 34.969-44.641 34.895 44.274.392.441c2.747 2.745 7.7 4.738 11.779 4.738h3.416c4.08 0 9.033-1.993 11.779-4.739l.21-.21 35.064-44.56 34.909 44.311.393.441c2.756 2.756 7.71 4.756 11.779 4.756h3.416c4.08 0 9.034-1.993 11.78-4.739l.21-.21 35.063-44.559 34.906 44.444.396.447c1.47 1.47 5.23 4.888 8.402 4.888 3.98 0 6.452-3.763 6.452-9.82V141.668c.002-3.759-.51-37.702-18.255-71.647zM109.354 170.146c-17.999 0-32.59-14.591-32.59-32.59s14.591-32.59 32.59-32.59 32.591 14.591 32.591 32.59-14.592 32.59-32.591 32.59zm114 0c-17.999 0-32.59-14.591-32.59-32.59s14.591-32.59 32.59-32.59 32.591 14.591 32.591 32.59-14.592 32.59-32.591 32.59z" />
-        </svg>
+  <div class="loading-container">
+    <div class="loading-content">
+      <div class="pacman-logo">PAC-MAN</div>
+
+      <div class="ghost-parade">
+        <div class="loading-ghost ghost-red"></div>
+        <div class="loading-ghost ghost-pink"></div>
+        <div class="loading-ghost ghost-cyan"></div>
+        <div class="loading-ghost ghost-orange"></div>
+        <div class="loading-pacman"></div>
       </div>
 
-      <div class="p-3">
-        <svg class="text-yellow-500 fill-current h-18  w-20" xmlns="http://www.w3.org/2000/svg" xml:space="preserve"
-          width="800" height="800" viewBox="0 0 333.561 333.561">
-          <path
-            d="M295.023 70.021c-10.653-20.379-25.378-36.617-43.763-48.265C228.47 7.32 200.047 0 166.78 0S105.09 7.32 82.3 21.757C63.914 33.404 49.19 49.643 38.537 70.022 20.792 103.966 20.28 137.91 20.28 141.668v182.064c0 1.4.001 2.673.036 3.596.214 5.784 4.052 6.233 5.223 6.233 2.327 0 3.61-1.173 7.316-4.88l.213-.214 34.969-44.641 34.895 44.274.392.441c2.747 2.745 7.7 4.738 11.779 4.738h3.416c4.08 0 9.033-1.993 11.779-4.739l.21-.21 35.064-44.56 34.909 44.311.393.441c2.756 2.756 7.71 4.756 11.779 4.756h3.416c4.08 0 9.034-1.993 11.78-4.739l.21-.21 35.063-44.559 34.906 44.444.396.447c1.47 1.47 5.23 4.888 8.402 4.888 3.98 0 6.452-3.763 6.452-9.82V141.668c.002-3.759-.51-37.702-18.255-71.647zM109.354 170.146c-17.999 0-32.59-14.591-32.59-32.59s14.591-32.59 32.59-32.59 32.591 14.591 32.591 32.59-14.592 32.59-32.591 32.59zm114 0c-17.999 0-32.59-14.591-32.59-32.59s14.591-32.59 32.59-32.59 32.591 14.591 32.591 32.59-14.592 32.59-32.591 32.59z" />
-        </svg>
+      <!-- Progress Bar -->
+      <div class="progress-wrapper">
+        <div class="progress-track">
+          <div class="progress-fill" :style="{ width: `${loadingProgress}%` }"></div>
+          <div class="progress-pacman" :style="{ left: `${loadingProgress}%` }"></div>
+        </div>
+        <div class="progress-label">{{ loadingProgress }}%</div>
       </div>
-      <div class="p-3">
-        <svg class="text-pink-500 fill-current h-18 w-20" xmlns="http://www.w3.org/2000/svg" xml:space="preserve"
-          width="800" height="800" viewBox="0 0 333.561 333.561">
-          <path
-            d="M295.023 70.021c-10.653-20.379-25.378-36.617-43.763-48.265C228.47 7.32 200.047 0 166.78 0S105.09 7.32 82.3 21.757C63.914 33.404 49.19 49.643 38.537 70.022 20.792 103.966 20.28 137.91 20.28 141.668v182.064c0 1.4.001 2.673.036 3.596.214 5.784 4.052 6.233 5.223 6.233 2.327 0 3.61-1.173 7.316-4.88l.213-.214 34.969-44.641 34.895 44.274.392.441c2.747 2.745 7.7 4.738 11.779 4.738h3.416c4.08 0 9.033-1.993 11.779-4.739l.21-.21 35.064-44.56 34.909 44.311.393.441c2.756 2.756 7.71 4.756 11.779 4.756h3.416c4.08 0 9.034-1.993 11.78-4.739l.21-.21 35.063-44.559 34.906 44.444.396.447c1.47 1.47 5.23 4.888 8.402 4.888 3.98 0 6.452-3.763 6.452-9.82V141.668c.002-3.759-.51-37.702-18.255-71.647zM109.354 170.146c-17.999 0-32.59-14.591-32.59-32.59s14.591-32.59 32.59-32.59 32.591 14.591 32.591 32.59-14.592 32.59-32.591 32.59zm114 0c-17.999 0-32.59-14.591-32.59-32.59s14.591-32.59 32.59-32.59 32.591 14.591 32.591 32.59-14.592 32.59-32.591 32.59z" />
-        </svg>
-      </div>
-      <div class="p-3">
-        <svg class="text-blue-500 fill-current h-18 w-20" xmlns="http://www.w3.org/2000/svg" xml:space="preserve"
-          width="800" height="800" viewBox="0 0 333.561 333.561">
-          <path
-            d="M295.023 70.021c-10.653-20.379-25.378-36.617-43.763-48.265C228.47 7.32 200.047 0 166.78 0S105.09 7.32 82.3 21.757C63.914 33.404 49.19 49.643 38.537 70.022 20.792 103.966 20.28 137.91 20.28 141.668v182.064c0 1.4.001 2.673.036 3.596.214 5.784 4.052 6.233 5.223 6.233 2.327 0 3.61-1.173 7.316-4.88l.213-.214 34.969-44.641 34.895 44.274.392.441c2.747 2.745 7.7 4.738 11.779 4.738h3.416c4.08 0 9.033-1.993 11.779-4.739l.21-.21 35.064-44.56 34.909 44.311.393.441c2.756 2.756 7.71 4.756 11.779 4.756h3.416c4.08 0 9.034-1.993 11.78-4.739l.21-.21 35.063-44.559 34.906 44.444.396.447c1.47 1.47 5.23 4.888 8.402 4.888 3.98 0 6.452-3.763 6.452-9.82V141.668c.002-3.759-.51-37.702-18.255-71.647zM109.354 170.146c-17.999 0-32.59-14.591-32.59-32.59s14.591-32.59 32.59-32.59 32.591 14.591 32.591 32.59-14.592 32.59-32.591 32.59zm114 0c-17.999 0-32.59-14.591-32.59-32.59s14.591-32.59 32.59-32.59 32.591 14.591 32.591 32.59-14.592 32.59-32.591 32.59z" />
-        </svg>
-      </div>
-      <div class="px-30 p-3">
-        <svg class="text-yellow-400 fill-current h-20 w-20" xmlns="http://www.w3.org/2000/svg" xml:space="preserve"
-          id="Icons" version="1.1" viewBox="0 0 32 32">
-          <path
-            d="m19.4 16 7.4-7.4c.4-.4.4-.9.1-1.3C24.2 3.9 20.3 2 16 2 8.3 2 2 8.3 2 16s6.3 14 14 14c4.3 0 8.2-1.9 10.9-5.2.3-.4.3-1-.1-1.3L19.4 16zM14 14c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3z" />
-        </svg>
-      </div>
-    </div>
-    <div class=" flex items-center justify-center">
-      <!-- Bar track -->
-      <div class="w-full max-w-md mx-auto mt-6 bg-gray-800 rounded-full h-4 overflow-hidden shadow-lg">
-        <!-- Bar fill -->
-        <div class="bg-yellow-400 h-full transition-all duration-300 ease-in-out"
-          :style="{ width: `${loadingProgress}%` }"></div>
-      </div>
+
+      <div class="loading-text">{{ loadingStatus }}</div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue' // Import onUnmounted
-import { useRouter } from 'vue-router' // Import useRouter
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { useArcadeModel } from '../stores/arcadeModel'
 
 const loadingProgress = ref(0)
-const router = useRouter() // Get router instance
-let intervalId = null; // To store the interval ID
+const loadingStatus = ref('LOADING ARCADE...')
+const router = useRouter()
+const { setModel } = useArcadeModel()
+
+let tickId = null
+let realProgress = 0
+let modelReady = false
+const MIN_DISPLAY_MS = 1500
+
+function startProgressTick(startTime) {
+  tickId = setInterval(() => {
+    // Smoothly approach the real progress
+    const target = modelReady ? 100 : Math.min(realProgress, 95)
+    const diff = target - loadingProgress.value
+
+    if (diff > 0) {
+      // Move toward target by a fraction each tick — feels smooth
+      loadingProgress.value = Math.round(loadingProgress.value + Math.max(diff * 0.15, 0.5))
+    }
+
+    if (loadingProgress.value >= 100 && modelReady) {
+      loadingProgress.value = 100
+      loadingStatus.value = 'READY!'
+      clearInterval(tickId)
+      tickId = null
+
+      // Ensure minimum display time
+      const elapsed = Date.now() - startTime
+      const remaining = Math.max(0, MIN_DISPLAY_MS - elapsed)
+      setTimeout(() => {
+        router.push({ name: 'ArcadeMachine' })
+      }, remaining + 400)
+    }
+  }, 50)
+}
 
 onMounted(() => {
-  intervalId = setInterval(() => {
-    loadingProgress.value += 1
-    if (loadingProgress.value >= 100) {
-      loadingProgress.value = 100; // Ensure it's exactly 100 for display
-      clearInterval(intervalId)
-      intervalId = null; // Reset intervalId after clearing
+  const startTime = Date.now()
+  const loader = new GLTFLoader()
 
-      // Redirect to ArcadeMachine.vue
-      // Make sure you have a route named 'ArcadeMachine' or change to path: '/path-to-arcade'
-      router.push({ name: 'ArcadeMachine' })
-    }
-  }, 50) // Adjust time for faster/slower loading (50ms * 100 = 5 seconds)
+  startProgressTick(startTime)
+
+  loader.load(
+    '/pacman_arcade/scene.gltf',
+    (gltf) => {
+      setModel(gltf)
+      realProgress = 100
+      modelReady = true
+    },
+    (event) => {
+      if (event.total > 0) {
+        realProgress = Math.round((event.loaded / event.total) * 100)
+      } else {
+        realProgress = Math.min(realProgress + 2, 90)
+      }
+    },
+    (error) => {
+      console.error('Failed to load arcade model:', error)
+      loadingStatus.value = 'ERROR LOADING...'
+      clearInterval(tickId)
+    },
+  )
 })
 
-// Clean up the interval if the component is unmounted before loading finishes
 onUnmounted(() => {
-  if (intervalId) {
-    clearInterval(intervalId)
-  }
+  if (tickId) clearInterval(tickId)
 })
 </script>
 
-
 <style scoped>
-.pacman-logo-marquee {
-  font-size: 4.0em;
-  /* Adjusted for container */
-  font-weight: bold;
-  color: #FFFF00;
+.loading-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, #0a0a2e 0%, #000000 70%);
+  overflow: hidden;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.pacman-logo {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 3.5rem;
+  color: #ffd700;
   text-shadow:
-    3px 3px 0 #FF0000,
-    /* Red shadow */
-    -2px -2px 0 #39f;
-  /* Blue highlight like */
-  line-height: 1;
-  margin: 0 5px;
+    0 0 10px #ffd700,
+    0 0 30px #ff8c00,
+    0 0 60px #ff4500,
+    3px 3px 0px #cc0000;
+  animation: logoGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes logoGlow {
+  from {
+    filter: brightness(1);
+  }
+  to {
+    filter: brightness(1.3);
+  }
+}
+
+/* Ghost Parade */
+.ghost-parade {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: paradeFloat 4s ease-in-out infinite;
+}
+
+@keyframes paradeFloat {
+  0%,
+  100% {
+    transform: translateX(-20px);
+  }
+  50% {
+    transform: translateX(20px);
+  }
+}
+
+.loading-ghost {
+  width: 30px;
+  height: 34px;
+  border-radius: 15px 15px 4px 4px;
+  position: relative;
+  animation: ghostBob 0.5s ease-in-out infinite alternate;
+}
+
+.loading-ghost::before,
+.loading-ghost::after {
+  content: '';
+  position: absolute;
+  background-color: white;
+  width: 8px;
+  height: 9px;
+  border-radius: 50%;
+  top: 8px;
+}
+
+.loading-ghost::before {
+  left: 5px;
+}
+.loading-ghost::after {
+  right: 5px;
+}
+
+.ghost-red {
+  background-color: #ff0000;
+  animation-delay: 0s;
+}
+.ghost-pink {
+  background-color: #ffb8ff;
+  animation-delay: 0.1s;
+}
+.ghost-cyan {
+  background-color: #00ffff;
+  animation-delay: 0.2s;
+}
+.ghost-orange {
+  background-color: #ffb852;
+  animation-delay: 0.3s;
+}
+
+@keyframes ghostBob {
+  from {
+    transform: translateY(-3px);
+  }
+  to {
+    transform: translateY(3px);
+  }
+}
+
+.loading-pacman {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 90deg,
+    transparent 0deg 35deg,
+    #ffd700 35deg 325deg,
+    transparent 325deg 360deg
+  );
+  animation: loadChomp 0.35s ease-in-out infinite alternate;
+}
+
+@keyframes loadChomp {
+  from {
+    background: conic-gradient(
+      from 90deg,
+      transparent 0deg 5deg,
+      #ffd700 5deg 355deg,
+      transparent 355deg 360deg
+    );
+  }
+  to {
+    background: conic-gradient(
+      from 90deg,
+      transparent 0deg 35deg,
+      #ffd700 35deg 325deg,
+      transparent 325deg 360deg
+    );
+  }
+}
+
+/* Progress Bar */
+.progress-wrapper {
+  width: 350px;
+  max-width: 80vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 12px;
+  background-color: #1a1a3a;
+  border-radius: 6px;
+  overflow: visible;
+  position: relative;
+  border: 1px solid #333366;
+  box-shadow:
+    0 0 10px rgba(0, 0, 0, 0.5),
+    inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffd700, #ff8c00);
+  border-radius: 6px;
+  transition: width 0.4s ease-out;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.progress-pacman {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 90deg,
+    transparent 0deg 30deg,
+    #ffd700 30deg 330deg,
+    transparent 330deg 360deg
+  );
+  animation: miniChomp 0.3s ease-in-out infinite alternate;
+  transition: left 0.4s ease-out;
+}
+
+@keyframes miniChomp {
+  from {
+    background: conic-gradient(
+      from 90deg,
+      transparent 0deg 5deg,
+      #ffd700 5deg 355deg,
+      transparent 355deg 360deg
+    );
+  }
+  to {
+    background: conic-gradient(
+      from 90deg,
+      transparent 0deg 30deg,
+      #ffd700 30deg 330deg,
+      transparent 330deg 360deg
+    );
+  }
+}
+
+.progress-label {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.75rem;
+  color: #ffd700;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+.loading-text {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.8rem;
+  color: #00ffff;
+  animation: textBlink 1.2s ease-in-out infinite;
+  text-shadow: 0 0 10px #00ffff;
+}
+
+@keyframes textBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
 </style>
