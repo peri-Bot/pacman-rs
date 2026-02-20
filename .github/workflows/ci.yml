@@ -27,5 +27,8 @@ jobs:
       - name: Install frontend dependencies
         run: nix develop --command bun install --frozen-lockfile
 
+      - name: Build WASM for frontend
+        run: nix develop --command wasm-pack build game/ --target web
+
       - name: Build frontend
         run: nix develop --command bun run build
