@@ -140,6 +140,22 @@ impl Maze {
     pub fn get_cell(&self, row: usize, col: usize) -> Option<CellType> {
         self.cells.get(row).and_then(|r| r.get(col)).copied()
     }
+
+    /// Check if a coordinate is walkable by entities (not a wall or ghost house).
+    pub fn is_walkable(&self, x: f64, y: f64) -> bool {
+        let ix = x.round() as isize;
+        let iy = y.round() as isize;
+
+        if ix < 0 || ix >= self.width as isize {
+            return true; // tunnels are walkable wrap-arounds
+        }
+
+        let cell = self.get_cell(iy as usize, ix as usize);
+        !matches!(
+            cell,
+            Some(CellType::Wall) | Some(CellType::GhostHouse) | None
+        )
+    }
 }
 
 // ─── Tests ──────────────────────────────────────────────────────────────────
