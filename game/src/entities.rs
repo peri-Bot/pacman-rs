@@ -24,6 +24,28 @@ pub enum Direction {
     Right,
 }
 
+impl Direction {
+    /// Returns the unit vector (dx, dy) for this direction.
+    pub fn to_vector(self) -> (f64, f64) {
+        match self {
+            Direction::Up => (0.0, -1.0),
+            Direction::Down => (0.0, 1.0),
+            Direction::Left => (-1.0, 0.0),
+            Direction::Right => (1.0, 0.0),
+        }
+    }
+
+    /// Returns the opposite direction.
+    pub fn opposite(self) -> Direction {
+        match self {
+            Direction::Up => Direction::Down,
+            Direction::Down => Direction::Up,
+            Direction::Left => Direction::Right,
+            Direction::Right => Direction::Left,
+        }
+    }
+}
+
 // ─── Position ───────────────────────────────────────────────────────────────
 
 /// A 2D position using `f64` for smooth sub-cell movement.
@@ -141,6 +163,7 @@ pub struct Ghost {
     pub ghost_type: GhostType,
     pub position: Position,
     pub direction: Direction,
+    pub next_direction: Direction,
     pub mode: GhostMode,
 }
 
@@ -157,6 +180,7 @@ impl Ghost {
             ghost_type,
             position,
             direction: Direction::Up,
+            next_direction: Direction::Up,
             mode: GhostMode::Scatter,
         }
     }
