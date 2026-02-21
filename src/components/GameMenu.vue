@@ -3,8 +3,12 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
+function startClassic() {
+  router.push({ name: 'play', query: { mode: 'classic' } })
+}
+
 function startPvP() {
-  router.push({ name: 'play' })
+  router.push({ name: 'play', query: { mode: 'pvp' } })
 }
 
 function showCredits() {
@@ -40,13 +44,13 @@ function showCredits() {
 
       <!-- Menu Buttons -->
       <div class="menu-buttons">
-        <button class="menu-btn primary" @click="startPvP">
-          <span class="btn-icon">👾</span>
-          <span class="btn-text">1 VS 1</span>
+        <button class="menu-btn primary" @click="startClassic">
+          <span class="btn-icon">🟡</span>
+          <span class="btn-text">CLASSIC MODE</span>
         </button>
-        <button class="menu-btn secondary">
-          <span class="btn-icon">🏆</span>
-          <span class="btn-text">HIGH SCORES</span>
+        <button class="menu-btn secondary" @click="startPvP">
+          <span class="btn-icon">👾</span>
+          <span class="btn-text">MULTIPLAYER (1 VS 1)</span>
         </button>
         <button class="menu-btn tertiary" @click="showCredits">
           <span class="btn-icon">ℹ️</span>
