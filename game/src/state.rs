@@ -776,23 +776,32 @@ mod tests {
     fn test_ghost_movement_out_of_spawn() {
         let mut gs = GameStateInner::new(GameMode::Classic);
         gs.phase = GamePhase::Playing;
-        
+
         let initial_y = gs.ghosts[0].position.y;
-        
+
         // Tick a few frames (0.016 seconds each)
         for _ in 0..10 {
             gs.tick(0.016);
         }
-        
-        println!("Ghost 0 after 10 ticks: x: {}, y: {}, dir: {:?}", gs.ghosts[0].position.x, gs.ghosts[0].position.y, gs.ghosts[0].direction);
-        
-        assert!(gs.ghosts[0].position.y < initial_y, "Blinky should move up from start");
-        
+
+        println!(
+            "Ghost 0 after 10 ticks: x: {}, y: {}, dir: {:?}",
+            gs.ghosts[0].position.x, gs.ghosts[0].position.y, gs.ghosts[0].direction
+        );
+
+        assert!(
+            gs.ghosts[0].position.y < initial_y,
+            "Blinky should move up from start"
+        );
+
         // Tick until he reaches row 10
         for _ in 0..50 {
             gs.tick(0.016);
         }
-        
-        println!("Ghost 0 after 60 ticks: x: {}, y: {}, dir: {:?}", gs.ghosts[0].position.x, gs.ghosts[0].position.y, gs.ghosts[0].direction);
+
+        println!(
+            "Ghost 0 after 60 ticks: x: {}, y: {}, dir: {:?}",
+            gs.ghosts[0].position.x, gs.ghosts[0].position.y, gs.ghosts[0].direction
+        );
     }
 }
