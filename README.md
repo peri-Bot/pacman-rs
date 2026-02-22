@@ -1,4 +1,4 @@
-<![CDATA[# 🕹️ pacman-rs
+# 🕹️ pacman-rs
 
 A modern Pac-Man game with a **Rust + WebAssembly** backend and a **Vue 3** frontend, featuring a 3D arcade cabinet experience powered by Three.js.
 
@@ -238,4 +238,3 @@ The GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push/PR t
 ## 📝 License
 
 This project is private. All rights reserved.
-]]>
